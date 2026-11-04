@@ -6,15 +6,17 @@
   <meta name="theme-color" content="#fafaf9">
   <meta name="application-name" content="404 FACE NOT FOUND">
   <meta property="og:title" content="404 FACE NOT FOUND">
-  <meta name="description" content="404 FACE NOT FOUND — Customize your digital mask and enter the Processing + Arduino installation, with real sensor distance and Risk.">
+  <meta name="description" content="404 FACE NOT FOUND — Customize a digital mask and try face tracking, two-hand gestures and realtime visual feedback directly in your browser.">
   <title>404 FACE NOT FOUND</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css?v=3b61574f5b0e">
+  <link rel="stylesheet" href="browser-live.css?v=c69359c9c7e4">
   <script src="design-data.js?v=03e0d6a98351" defer></script>
-  <script src="installation.js?v=4bcd335ae2e3" defer></script>
-  <script src="public-preview.js?v=fb39141594d9" defer></script>
+  <script src="public-preview.js?v=470c85f43765" defer></script>
+  <script src="browser-gesture.js?v=f03b314e604c" defer></script>
+  <script src="browser-live.js?v=6ce44cb60e90" defer></script>
   <script src="app.js?v=b37c657425d3" defer></script>
-  <script src="experience.js?v=3c3aee63b188" defer></script>
+  <script src="experience.js?v=a96297631358" defer></script>
 </head>
 <body>
   <div class="app" data-mode="collection">
@@ -104,7 +106,17 @@
         <img class="live-feed" alt="实时画面" hidden>
         <div class="live-overlay"><a class="live-exit" href="#home"><span aria-hidden="true">×</span><span data-i18n="leaveLive">结束体验</span></a><span class="live-status"><i></i><span id="stage-status" role="status"></span></span><div class="live-tools"><a href="#guide" data-i18n="showGuide">操作提示</a><a href="#history" data-i18n="historyNav">防护记录</a></div></div>
         <div class="live-fallback"><span class="live-loading" aria-hidden="true"></span><h2 id="live-fallback-title"></h2><p class="live-message" role="status" aria-live="polite"></p><button class="primary-button" id="session-button" hidden><span data-i18n="resumeLive">重新开始</span><span aria-hidden="true">↗</span></button><button class="quiet-button" id="reconnect" hidden data-i18n="retry">重新连接</button></div>
-        <aside class="live-telemetry" data-i18n-aria="sensorPanel" aria-label="距离与风险" data-sensor="unavailable"><div class="telemetry-heading"><i aria-hidden="true"></i><span data-i18n="sensorPanel">距离与风险</span></div><dl><div><dt data-i18n="distanceLabel">距离</dt><dd><span id="live-distance">—</span><small id="live-distance-unit" hidden>cm</small></dd></div><div><dt data-i18n="sensorRisk">Risk · 距离风险</dt><dd><span id="live-risk">—</span><small id="live-risk-unit" hidden>%</small></dd></div></dl><div class="sensor-risk-meter" role="meter" aria-label="距离风险" aria-valuemin="0" aria-valuemax="100" data-i18n-aria="sensorRisk"><span></span></div><p id="live-sensor-status" role="status"></p><p id="live-sensor-range"></p></aside>
+        <aside class="live-telemetry browser-distance-panel" data-sensor="simulated" aria-label="距离模拟">
+  <details id="browser-distance-details" open>
+    <summary class="telemetry-heading"><i aria-hidden="true"></i><span data-i18n="browserDistancePanel">距离模拟</span><span class="browser-panel-toggle" aria-hidden="true">⌄</span></summary>
+    <dl><div><dt data-i18n="browserDistanceLabel">模拟距离</dt><dd><span id="live-distance">26</span><small id="live-distance-unit">cm</small></dd></div><div><dt data-i18n="browserRiskLabel">模拟 Risk</dt><dd><span id="live-risk">50</span><small id="live-risk-unit">%</small></dd></div></dl>
+    <label class="browser-distance-label" for="browser-distance" data-i18n="browserDistanceControl">拖动滑块，体验距离变化</label>
+    <input id="browser-distance" type="range" min="2" max="50" step="1" value="26" aria-label="模拟距离，厘米">
+    <div class="browser-range-labels"><span data-i18n="browserNear">近 · 2 cm</span><span data-i18n="browserFar">远 · 50 cm</span></div>
+    <div class="sensor-risk-meter" role="meter" aria-label="模拟风险" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span></span></div>
+    <p id="live-sensor-status" role="status"></p><p id="live-sensor-range" data-i18n="browserSimulationNote">网页未连接距离传感器；数值仅用于体验形变。</p>
+  </details>
+</aside>
         <p class="live-caption" data-i18n="liveMinimalNote">模拟捕获体验 · 仅在本机处理</p>
       </section>
     </main>

@@ -2,14 +2,19 @@
   'use strict';
   const UI=window.MaskUI, {presets}=window.MaskDesign;
   const publicPreview=window.MaskPublicPreview===true;
-  const processingHandoff=window.MaskProcessingHandoff===true;
+  const browserEngine=publicPreview && window.MaskBrowserEngine ? new window.MaskBrowserEngine() : null;
   const $=selector=>document.querySelector(selector), t=(key,values)=>UI.t(key,values);
-  const app=$('.app'), feed=$('.live-feed');
+  const app=$('.app'), feed=browserEngine?browserEngine.canvas:$('.live-feed');
+  if(browserEngine) { $('.live-feed').replaceWith(feed); app.dataset.engine='browser'; }
   let page='', state=null, connected=false, wants=false, busy=false, messageKey='readyNote';
-  let lastBeat=0, lastFrame=0, frameURL='', frameBusy=false, startingAt=0, lastCameraAt=0;
-  let records=[], filtered=[], sampleMode=true, recordError=false, historyBusy=false, historyAt=0, lastCount=-1, selectedEvent=null;
+  let lastBeat=0, lastFrame=0, frameURL='', frameBusy=false, startingAt=0;
+  let records=[], filtered=[], sampleMode=!browserEngine, recordError=false, historyBusy=false, historyAt=0, lastCount=-1, selectedEvent=null;
   let liveEntry=false;
   let toastTimer;
+  if(browserEngine) {
+    $('#browser-distance').addEventListener('input',event=>{browserEngine.setSimulatedDistance(event.target.value);renderTelemetry();});
+    if(matchMedia('(max-width:600px)').matches) $('#browser-distance-details').open=false;
+  }
   const locale=()=>UI.language==='zh'?'zh-CN':'en-GB';
   const formatTime=(timestamp,withDate=false)=>new Intl.DateTimeFormat(locale(),{timeZone:'Asia/Hong_Kong',...(withDate?{year:'numeric',month:'short',day:'numeric'}:{}),hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(timestamp);
   const dateKey=timestamp=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Hong_Kong',year:'numeric',month:'2-digit',day:'2-digit'}).format(timestamp);
@@ -28,6 +33,7 @@
     return {id:`demo-${index+1}`,fictional:true,time:demoDay-days*86400000+(hour*60+minute)*60000,duration,config:{shape,colour,characters:index===2?'PRIVATE':'01',movement:preset.movement,density:preset.density},response:true,status:'complete',distanceAvailable:distance!==null,...(distance===null?{}:{minDistance:distance}),peakRisk:risk,endReason:distance===null?'session-ended':'released'};
   });
   async function api(path,body) {
+    if(browserEngine) return browserEngine.request(path,body);
     const response=await fetch(path,{cache:'no-store',signal:AbortSignal.timeout(3500),...(body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})});
     if(!response.ok) throw new Error('Local experience unavailable');
     return response.json();
@@ -42,8 +48,9 @@
   }
   function endSession(reason='ended',beacon=false) {
     const wasRunning=wants;
-    wants=false; startingAt=0; lastCameraAt=0; clearFeed();
-    if(wasRunning) {
+    wants=false; startingAt=0; clearFeed();
+    if(browserEngine) { browserEngine.stop(reason==='tabPaused'?'session-ended':reason==='cameraIssue'?'camera-lost':'session-ended'); messageKey=reason; }
+    if(wasRunning && !browserEngine) {
       messageKey=reason;
       if(beacon) navigator.sendBeacon('/api/session',new Blob([JSON.stringify({active:false})],{type:'application/json'}));
       else api('/api/session',{active:false}).catch(()=>{});
@@ -51,27 +58,23 @@
     renderLive();
   }
   async function startSession() {
-    if(publicPreview) return;
+    if(publicPreview && !browserEngine) return;
     if(busy) return;
     if(wants) { endSession(); return; }
-    busy=true; wants=true; startingAt=Date.now(); lastCameraAt=0; messageKey='applying'; renderLive();
+    busy=true; wants=true; startingAt=Date.now(); messageKey=browserEngine?'browserPreparing':'applying'; if(browserEngine) connected=true; renderLive();
     try {
       await api('/api/session',{active:true,config:UI.selected}); lastBeat=Date.now(); connected=true;
       if(!wants || page!=='live') await api('/api/session',{active:false});
-    } catch { wants=false; connected=false; messageKey='engineIssue'; clearFeed(); }
+    } catch(error) { wants=false; connected=!!browserEngine; messageKey=browserEngine && /Issue$/.test(error.message)?error.message:'engineIssue'; clearFeed(); }
     finally { busy=false; renderLive(); }
   }
   $('#session-button').addEventListener('click',startSession);
   $('#reconnect').addEventListener('click',()=>{ messageKey='readyNote'; if(!wants) startSession(); else poll(); });
-  $('#guide-start').addEventListener('click',()=>{ if(processingHandoff) { location.assign(window.MaskInstallation.url(UI.selected,UI.language)); return; } if(publicPreview) { location.hash='history'; return; } liveEntry=true; location.hash='live'; });
+  $('#guide-start').addEventListener('click',()=>{ if(publicPreview && !browserEngine) { location.hash='history'; return; } liveEntry=true; location.hash='live'; });
   const pageTitle=()=>t({home:'homeTitlePage',collection:'title',guide:'guideTitlePage',live:'liveTitlePage',history:'historyTitlePage'}[page]||'homeTitlePage');
   function showPage() {
     let hash=location.hash.slice(1);
-    if(processingHandoff && (hash==='guide' || hash==='live')) {
-      location.replace(window.MaskInstallation.url(UI.selected,UI.language));
-      return;
-    }
-    if(publicPreview && hash==='live') { hash='guide'; history.replaceState(null,'','#guide'); }
+    if(publicPreview && !browserEngine && hash==='live') { hash='guide'; history.replaceState(null,'','#guide'); }
     if(hash==='live' && !liveEntry && !wants) { hash='guide'; history.replaceState(null,'','#guide'); }
     const next=hash==='customize'?'collection':['home','collection','guide','live','history'].includes(hash)?hash:'home';
     if(next==='home' && hash!=='home') history.replaceState(null,'','#home');
@@ -102,7 +105,7 @@
     if(page==='home') UI.enterHome(!!previous);
     else UI.leaveHome();
     if(page==='live') { liveEntry=false; renderLive(); startSession(); }
-    if(page==='history') { renderHistory(); loadRecords(true); }
+    if(page==='history') { if(browserEngine && browserEngine.events.length) sampleMode=false; renderHistory(); loadRecords(true); }
   }
   window.addEventListener('hashchange',showPage);
   window.addEventListener('load',()=>requestAnimationFrame(()=>{ if(page==='home') window.scrollTo({top:0,behavior:'instant'}); }),{once:true});
@@ -124,14 +127,15 @@
   function renderLive() {
     renderTelemetry();
     feed.alt=t('liveView');
+    if(browserEngine) feed.setAttribute('aria-label',t('liveView'));
     const current=wants && state?.session && connected;
     const matching=sameConfig(state?.config,UI.selected);
     const fresh=current && state.camera && lastFrame && Date.now()-lastFrame<1800;
     const status=!connected?'offline':!wants?'idle':!fresh?'connecting':state.active?'responding':!state.face?'looking':state.gesture?'holding':'waiting';
     $('.mirror-stage').dataset.status=status;
     $('.live-fallback').hidden=!!fresh; feed.hidden=!fresh;
-    const feedback=fresh?window.MaskInstallation.gestureFeedback(state):status;
-    $('#stage-status').textContent=!fresh?t(status):state.active?t(feedback)+(state.faceVisible===false?' · '+t('trackingOccluded'):''):`${t(feedback)}${state.gesture?' · '+Math.round(Math.min(1,Math.max(0,state.hold||0))*100)+'%':''} · ${t('twoHands',{n:state.hands})}`;
+    const browserStatus=state?.active?'responding':!state?.face?'noFace':state?.gesture?'holdPose':state?.gestureMessage||'waiting';
+    $('#stage-status').textContent=browserEngine && fresh?`${t(browserStatus)}${state.gesture && !state.active?' · '+Math.round((state.hold||0)*100)+'%':''} · ${t('twoHands',{n:state.hands||0})}`:t(status);
     $('#session-button').disabled=busy;
     $('#session-button span:first-child').textContent=t(busy?'starting':'resumeLive');
     $('#session-button').hidden=wants || !connected;
@@ -142,26 +146,26 @@
     else if(wants && !matching) key=Date.now()-startingAt>6000?'configIssue':'applying';
     else if(wants && current) key='connecting';
     if(wants && connected && matching && !state?.error) key='connecting';
-    $('#live-fallback-title').textContent=t(wants?'liveLoading':!connected?'offline':'livePaused');
+    if(browserEngine) {
+      key=browserEngine.errorKey || (wants?(browserEngine.loading && !browserEngine.stream?'browserAllowCamera':'browserPreparing'):messageKey);
+    }
+    $('#live-fallback-title').textContent=t(browserEngine && /Issue$/.test(key)?'browserCannotStart':wants?'liveLoading':!connected?'offline':'livePaused');
     $('.live-loading').hidden=!wants || !connected || !!state?.error;
     $('.live-message').textContent=t(key);
     $('.live-message').classList.toggle('is-error',key.endsWith('Issue'));
   }
   function renderTelemetry() {
-    const reading=window.MaskInstallation.telemetry(state,connected),panel=$('.live-telemetry'),meter=$('.sensor-risk-meter');
-    panel.dataset.sensor=reading.available?'connected':'unavailable';
-    const percent=reading.available?Math.round(reading.risk*100):null;
-    $('#live-distance').textContent=reading.available?new Intl.NumberFormat(locale(),{maximumFractionDigits:1}).format(reading.distance):'—';
-    $('#live-risk').textContent=reading.available?new Intl.NumberFormat(locale(),{maximumFractionDigits:0}).format(percent):'—';
-    $('#live-distance-unit').hidden=$('#live-risk-unit').hidden=!reading.available;
-    meter.style.setProperty('--risk-fill',`${percent??0}%`);
-    meter.setAttribute('aria-hidden',String(!reading.available));
-    meter.setAttribute('aria-valuenow',String(percent??0));
-    meter.setAttribute('aria-valuetext',reading.available?`${percent}%`:t(reading.online?'sensorNoReading':'sensorOffline'));
-    $('#live-sensor-status').textContent=t(!reading.online?'sensorOffline':!reading.available?'sensorNoReading':wants && reading.active?'sensorResponding':'sensorStandby');
-    $('#live-sensor-range').textContent=reading.online && Number.isFinite(state?.nearDistance) && Number.isFinite(state?.farDistance)?t('sensorRange',{near:state.nearDistance,far:state.farDistance}):t('sensorSource');
+    if(!browserEngine)return;
+    const distance=browserEngine.simulatedDistance,risk=browserEngine.simulatedRisk,percent=Math.round(risk*100),meter=$('.sensor-risk-meter');
+    $('#live-distance').textContent=String(distance);$('#live-risk').textContent=String(percent);
+    $('#live-distance-unit').hidden=$('#live-risk-unit').hidden=false;
+    meter.style.setProperty('--risk-fill',`${percent}%`);meter.setAttribute('aria-valuenow',String(percent));meter.setAttribute('aria-valuetext',`${t('browserRiskLabel')} ${percent}%`);
+    $('#live-sensor-status').textContent=t('browserSimulationStatus');
+    $('#browser-distance').setAttribute('aria-label',t('browserDistanceLabel'));
+    $('.browser-distance-panel').setAttribute('aria-label',t('browserDistancePanel'));
   }
   async function nextFrame() {
+    if(browserEngine) { if(wants && page==='live') { lastFrame=browserEngine.lastFrame; renderLive(); } return; }
     if(frameBusy || !wants || page!=='live' || document.hidden || !state?.camera || !sameConfig(state.config,UI.selected)) return;
     frameBusy=true;
     try {
@@ -182,10 +186,10 @@
       if(!Number.isFinite(next.time) || (Date.now()-next.time>4000 && !(wants && Date.now()-startingAt<20000))) throw new Error('Stale engine');
       if(!connected && !wants && messageKey==='engineIssue') messageKey='readyNote';
       state=next; connected=true;
-      if(wants && Date.now()-lastBeat>1800) { lastBeat=Date.now(); await api('/api/session',{active:true}); }
+      if(browserEngine && wants && !browserEngine.loading && !state.session && browserEngine.errorKey) { endSession(browserEngine.errorKey); }
+      if(wants && !browserEngine?.loading && Date.now()-lastBeat>1800) { lastBeat=Date.now(); await api('/api/session',{active:true}); }
       if(page==='history' && (recordError || lastCount!==state.eventCount || records.some(record=>record.status==='active'))) loadRecords();
-      if(wants && state.camera) lastCameraAt=Date.now();
-      if(wants && window.MaskInstallation.cameraTimedOut(startingAt,lastCameraAt)) { endSession('cameraIssue'); }
+      if(wants && !browserEngine?.loading && Date.now()-startingAt>20000 && !state.camera) { endSession('cameraIssue'); }
       if(wants && state.session && Date.now()-startingAt>8000 && !sameConfig(state.config,UI.selected)) endSession('configIssue');
     } catch {
       connected=false;
@@ -199,14 +203,14 @@
     if(!polling && !document.hidden) { polling=true; await poll(); polling=false; }
     setTimeout(tick,wants?350:1500);
   }
-  if(!publicPreview) setInterval(nextFrame,140);
+  if(!publicPreview || browserEngine) setInterval(nextFrame,140);
 
   for(const preset of presets) { const option=document.createElement('option'); option.value=preset.id; $('#history-shape').append(option); }
   function updateShapeLabels() {
     for(const option of $('#history-shape').options) option.textContent=option.value?presets.find(p=>p.id===option.value).name[UI.language]:t('allShapes');
   }
   async function loadRecords(force=false) {
-    if(publicPreview) return;
+    if(publicPreview && !browserEngine) return;
     if(historyBusy || (!force && Date.now()-historyAt<1300)) return;
     historyBusy=true; historyAt=Date.now();
     try {
@@ -218,6 +222,8 @@
     finally { historyBusy=false; renderHistory(); }
   }
   function cell(tag,className,text) { const element=document.createElement(tag); element.className=className; element.textContent=text; return element; }
+  const recordDistance=record=>Number.isFinite(record.minSimulatedDistance)?`${Math.round(record.minSimulatedDistance)} cm`:record.distanceAvailable?`${Math.round(record.minDistance)} cm`:'—';
+  const recordRisk=record=>record.simulated||record.distanceAvailable?`${Math.round(record.peakRisk*100)}%`:'—';
   function renderHistory() {
     const source=sampleMode?samples:records;
     const from=$('#date-from').value, to=$('#date-to').value, shape=$('#history-shape').value;
@@ -243,7 +249,7 @@
       time.append(cell('span','event-date',dateKey(record.time)),cell('strong','',formatTime(record.time)));
       const mask=cell('span','event-mask',''); const swatch=cell('i','',''); swatch.style.background=record.config.colour;
       mask.append(swatch,cell('span','',maskName(record.config)));
-      button.append(time,mask,cell('span','event-response',t(record.status==='active'?'ongoing':'maskResponded')),cell('span','event-distance',record.distanceAvailable?`${Math.round(record.minDistance)} cm`:'—'),cell('span','event-risk',record.distanceAvailable?`${Math.round(record.peakRisk*100)}%`:'—'),cell('span','record-arrow','↗'));
+      button.append(time,mask,cell('span','event-response',t(record.status==='active'?'ongoing':'maskResponded')),cell('span','event-distance',recordDistance(record)),cell('span','event-risk',recordRisk(record)),cell('span','record-arrow','↗'));
       button.querySelector('.event-distance').dataset.label=`${t('distanceLabel')} · `;
       button.querySelector('.event-risk').dataset.label=`${t('riskLabel')} · `;
       button.addEventListener('click',()=>openRecord(record)); rows.append(button);
@@ -256,7 +262,7 @@
   $('.archive-filters').addEventListener('input',renderHistory);
   $('.archive-filters').addEventListener('reset',()=>setTimeout(renderHistory,0));
   $('#reset-search').addEventListener('click',()=>$('.archive-filters').reset());
-  function toggleSamples(next) { sampleMode=publicPreview || next; renderHistory(); if(!sampleMode) loadRecords(true); }
+  function toggleSamples(next) { sampleMode=(publicPreview && !browserEngine) || next; renderHistory(); if(!sampleMode) loadRecords(true); }
   $('#sample-toggle').addEventListener('click',()=>toggleSamples(!sampleMode));
   const endKeys={'released':'released','face-lost':'faceLost','camera-lost':'cameraLost','session-ended':'sessionEnded','engine-stopped':'engineStopped'};
   function renderRecord() {
@@ -265,7 +271,7 @@
     $('#record-title').textContent=maskName(record.config);
     UI.paintPreview($('#record-mask'),record.config);
     const seconds=new Intl.NumberFormat(locale(),{maximumFractionDigits:1}).format(record.duration/1000);
-    const values=[['eventTime',formatTime(record.time,true)],['responseLabel',t(record.status==='active'?'ongoing':'maskResponded')],['responseTime',`${seconds} ${UI.language==='zh'?'秒':'s'}`],['closestDistance',record.distanceAvailable?`${Math.round(record.minDistance)} cm`:t('unavailableDistance')],['peakRisk',record.distanceAvailable?`${Math.round(record.peakRisk*100)}%`:t('notEvaluated')],['charactersDetail',record.config.characters],['colourDetail',record.config.colour],['finishedBy',record.status==='active'?'—':t(endKeys[record.endReason]||'released')]];
+    const values=[['eventTime',formatTime(record.time,true)],['responseLabel',t(record.status==='active'?'ongoing':'maskResponded')],['responseTime',`${seconds} ${UI.language==='zh'?'秒':'s'}`],['closestDistance',recordDistance(record)],['peakRisk',recordRisk(record)],['charactersDetail',record.config.characters],['colourDetail',record.config.colour],['finishedBy',record.status==='active'?'—':t(endKeys[record.endReason]||'released')]];
     const details=document.createDocumentFragment();
     for(const [key,value] of values) { const row=document.createElement('div'); row.append(cell('dt','',t(key)),cell('dd','',value)); details.append(row); }
     $('#record-details').replaceChildren(details);
@@ -281,8 +287,6 @@
     setTimeout(()=>URL.revokeObjectURL(url),1000); notify('exported');
   });
   window.addEventListener('dpm:language',()=>{ updateShapeLabels(); renderMask(); renderLive(); renderHistory(); document.title=pageTitle(); });
-  $('#sample-toggle').hidden=publicPreview;
-  const imported=!publicPreview?window.MaskInstallation.decode(location.hash):null;
-  if(imported) { UI.useConfig(imported.config);UI.setLanguage(imported.language);history.replaceState(null,'','#guide'); }
-  updateShapeLabels(); renderMask(); showPage(); if(!publicPreview) tick();
+  $('#sample-toggle').hidden=publicPreview && !browserEngine;
+  updateShapeLabels(); renderMask(); showPage(); if(!publicPreview || browserEngine) tick();
 })();
