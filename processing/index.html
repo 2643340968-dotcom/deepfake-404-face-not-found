@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fafaf9">
+  <meta name="application-name" content="404 FACE NOT FOUND · Processing + Arduino">
+  <meta property="og:title" content="404 FACE NOT FOUND · Processing + Arduino">
+  <meta name="description" content="404 FACE NOT FOUND — The Processing + Arduino edition. Customize your mask, then connect to the local installation for camera, gesture and physical distance interaction.">
+  <title>404 FACE NOT FOUND · Processing + Arduino</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css?v=3b61574f5b0e">
+  <link rel="stylesheet" href="processing-preview.css?v=bc24f7c50661">
+  <script src="design-data.js?v=03e0d6a98351" defer></script>
+  <script src="installation.js?v=4bcd335ae2e3" defer></script>
+  <script src="processing-preview.js?v=ed531e065180" defer></script>
+  <script src="app.js?v=b37c657425d3" defer></script>
+  <script src="experience.js?v=567018602f28" defer></script>
+</head>
+<body>
+  <div class="app" data-mode="collection">
+    <header class="header">
+      <a class="wordmark" href="#home" data-i18n-aria="home" aria-label="404 FACE NOT FOUND，返回首页"><span data-i18n="brand">404 FACE NOT FOUND</span><span class="edition-marker">PROCESSING + ARDUINO</span></a>
+      <nav data-i18n-aria="navigation" aria-label="页面操作">
+        <div class="primary-nav"><a href="#home" data-page="home" aria-current="page" data-i18n="homeNav">首页</a><a href="#collection" data-page="collection" data-i18n="collection">口罩选择</a><a href="#guide" data-page="guide" data-i18n="liveNav">实时体验</a><a href="#history" data-page="history" data-i18n="historyNav">防护记录</a></div>
+        <button class="text-button project-button"><span data-i18n="project">项目介绍</span> <span aria-hidden="true">↗</span></button>
+        <button class="language-button" type="button" data-i18n-aria="language" aria-label="Switch to English"><span data-i18n="languageButton">EN</span></button>
+        <button class="motion-button" aria-label="暂停字符动画" aria-pressed="false"><span class="motion-symbol" aria-hidden="true">Ⅱ</span><span class="motion-label">动态开启</span></button>
+      </nav>
+    </header>
+    <main id="home" class="home-page" data-view="home">
+      <div class="home-utilities">
+        <div class="home-art-meta"><a class="home-mask-label" href="#customize"><i aria-hidden="true"></i><span data-i18n="homeSelected">当前形态</span><strong class="home-selected-name"></strong><span aria-hidden="true">↗</span></a><span class="home-art-caption" data-i18n="homeArt">流动的边界，自由的表达。</span></div>
+        <div class="home-art-tools"><span class="home-interact" data-i18n="homeInteract">移动或轻触，让字符回应。</span><button class="home-replay" type="button"><span aria-hidden="true">↻</span><span data-i18n="homeReplay">重播入场</span></button></div>
+      </div>
+      <section class="home-composition">
+        <div class="home-art">
+          <button class="home-art-trigger" type="button" data-i18n-aria="homeDisturb" aria-label="扰动字符口罩"><canvas id="home-mask" width="1100" height="850" aria-hidden="true"></canvas><span class="home-frame-corner" aria-hidden="true"></span></button>
+        </div>
+        <div class="home-title"><span class="eyebrow" data-i18n="homeEyebrow">关于数字身份与面部隐私的交互试验</span><h1 tabindex="-1" data-i18n="homeTitle">404\nFACE NOT FOUND</h1><p data-i18n="homeIntro">当镜头靠近，\n让你的隐私被看见。</p></div>
+        <div class="home-entry"><a class="primary-button" href="#collection"><span data-i18n="homeStart">选择你的口罩</span><span aria-hidden="true">↗</span></a><a class="inline-link" href="#guide"><span data-i18n="homeQuick">使用当前口罩体验</span><span aria-hidden="true">↗</span></a></div>
+      </section>
+    </main>
+    <main id="collection" data-view="collection" hidden>
+      <aside class="editor" data-i18n-aria="editorLabel" aria-label="定制口罩" inert>
+        <button class="back-button" type="button"><span aria-hidden="true">←</span><span data-i18n="back">返回选择</span></button>
+        <div class="editor-heading"><span class="eyebrow" data-i18n="editorEyebrow">你的口罩，你的表达</span><h2 data-i18n="editorTitle">定义你的表达</h2><p><span class="editor-name">基础</span><span class="editor-number">01 / 08</span></p></div>
+        <div class="field-group"><label for="shape"><span data-i18n="shapeLabel">口罩形状</span></label><select id="shape"></select></div>
+        <div class="field-group">
+          <label for="characters"><span data-i18n="characters">字符内容</span></label>
+          <input id="characters" value="01" maxlength="12" autocomplete="off" spellcheck="false" aria-describedby="characters-help">
+          <span id="characters-help" class="field-help" data-i18n="charactersHelp">1—12 个字符；留空使用 01</span>
+        </div>
+        <fieldset class="field-group colour-group">
+          <legend><span data-i18n="colour">字符色彩</span></legend>
+          <div class="colour-picker">
+            <div class="wheel-wrap"><canvas id="colour-wheel" width="256" height="256" role="slider" tabindex="0" data-i18n-aria="wheelLabel" aria-label="色相与饱和度轮盘" aria-valuemin="0" aria-valuemax="359" aria-valuenow="230" aria-describedby="wheel-help"></canvas><span class="wheel-marker" aria-hidden="true"></span></div>
+            <div class="colour-details"><span class="colour-preview" aria-hidden="true"></span><label for="colour-hex" data-i18n="hexLabel">色值</label><input type="text" id="colour-hex" value="#505B90" maxlength="7" spellcheck="false" autocomplete="off" data-i18n-aria="hexInput" aria-label="十六进制颜色值" aria-describedby="hex-error"><span class="colour-readout" aria-hidden="true"></span></div>
+          </div>
+          <span id="wheel-help" class="sr-only" data-i18n="wheelHelp">拖动轮盘选色。左右方向键调整色相，上下方向键调整饱和度；按住 Shift 可增大步幅。</span>
+          <span id="hex-error" class="colour-error" data-i18n="hexError" hidden>请输入六位十六进制颜色值。</span>
+          <div class="quick-colours" role="group" data-i18n-aria="colour" aria-label="字符色彩"></div>
+          <label class="brightness-label" for="brightness"><span data-i18n="brightness">明暗</span><output id="brightness-value" for="brightness">56</output></label><input id="brightness" type="range" min="0" max="100" value="56">
+        </fieldset>
+        <div class="field-group"><label for="movement"><span data-i18n="movement">流动幅度</span><output for="movement" id="movement-value">35</output></label><input id="movement" type="range" min="0" max="100" value="35"><div class="range-labels"><span data-i18n="calm">平静</span><span data-i18n="flowing">流动</span></div></div>
+        <div class="field-group"><label for="density"><span data-i18n="density">字符密度</span><output for="density" id="density-value">72</output></label><input id="density" type="range" min="30" max="100" value="72"><div class="range-labels"><span data-i18n="sparse">疏</span><span data-i18n="dense">密</span></div></div>
+        <button class="reset-button"><span data-i18n="reset">恢复默认</span><span aria-hidden="true">↺</span></button>
+        <div class="editor-footnote"><span class="status-dot"></span><span data-i18n="preview">当前形态预览</span></div>
+      </aside>
+      <div class="workarea">
+        <div class="heading-row"><div><span class="eyebrow heading-eyebrow">口罩形态集</span><h1 tabindex="-1"><span data-i18n="heading">选择你的口罩</span><span class="heading-period" data-i18n="headingEnd">。</span></h1></div><p class="heading-note"><span data-i18n="note">不同的形态，同一个你。</span><br><span data-i18n="noteSub">关于数字身份的一次探索。</span></p></div>
+        <section class="gallery" data-i18n-aria="carousel" aria-label="口罩形态轮播" aria-roledescription="轮播图" tabindex="0">
+          <div class="stage-mark stage-mark-top" aria-hidden="true">+<span data-i18n="field">字符场域</span>+</div><div class="slides"></div>
+          <div class="neighbour-label neighbour-left" aria-hidden="true"><span class="neighbour-index">08</span><span class="neighbour-name">回声</span></div><div class="neighbour-label neighbour-right" aria-hidden="true"><span class="neighbour-index">02</span><span class="neighbour-name">弧面</span></div>
+          <div class="drag-indicator" aria-hidden="true"><span class="drag-track"><i></i></span><span data-i18n="drag">左右拖动切换</span></div>
+        </section>
+        <section class="selection-summary" data-i18n-aria="selection" aria-label="当前选择">
+          <div class="selection-index"><span id="current-number">01</span><span class="index-divider">/</span><span class="muted" id="total-number">08</span></div>
+          <div class="selection-copy" aria-live="polite" aria-atomic="true"><h2 id="mask-name">基础</h2><p id="mask-description">完整字符表面，柔和收拢的下颌轮廓。</p></div>
+          <div class="pagination" data-i18n-aria="choices" aria-label="选择口罩形状"></div>
+          <button class="customize-button"><span>定制这个口罩</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+        </section>
+      </div>
+    </main>
+    <main id="guide" class="guide-page experience-page" data-view="guide" hidden>
+      <div class="guide-top"><a href="#customize" class="inline-link"><span aria-hidden="true">←</span><span data-i18n="guideBack">调整口罩</span></a><span class="eyebrow" data-i18n="guideEyebrow">开始之前</span></div>
+      <div class="guide-layout">
+        <div class="guide-visual" aria-hidden="true">
+          <div class="photo-frame"><canvas id="guide-effect" width="300" height="210"></canvas><i></i><i></i><i></i><i></i></div>
+          <svg class="guide-hand hand-first" viewBox="0 0 180 220" fill="none">
+            <defs><g id="guide-l-hand">
+              <path d="M41 212V198C18 181 10 159 10 126C10 119 15 113 22 113C29 113 33 118 33 126V104C33 96 38 90 45 90C52 90 56 95 56 103V121V88C56 80 61 74 68 74C75 74 79 79 79 87V113V29C79 20 84 14 92 14C100 14 106 20 106 29V141C106 146 110 149 117 149H164C170 149 174 153 174 159C174 165 170 169 164 169H142C132 169 126 173 121 179C114 187 108 191 100 198V212"/>
+            </g></defs>
+            <use href="#guide-l-hand"/>
+          </svg>
+          <svg class="guide-hand hand-second" viewBox="0 0 180 220" fill="none"><use href="#guide-l-hand"/></svg>
+          <span class="guide-hold" data-i18n="guideHold">保持约 1 秒</span>
+        </div>
+        <div class="guide-copy"><h1 tabindex="-1" data-i18n="guideTitle">用双手，框住这一刻。</h1><ul class="guide-steps"><li data-i18n="guideStepFace">正对摄像头，让面部与双手进入画面。</li><li data-i18n="guideStepHands">伸出食指和拇指，两只 L 朝内组成取景框。</li><li data-i18n="guideStepHold">保持约一秒，口罩出现；松手后逐渐消退。</li></ul><div class="guide-selection"><canvas id="guide-mask" width="220" height="130" aria-hidden="true"></canvas><div><span class="eyebrow" data-i18n="chosenMask">你的口罩</span><span class="guide-mask-name"></span></div><a class="inline-link" href="#customize" data-i18n="changeMask">更换 ↗</a></div><button id="guide-start" class="primary-button"><span data-i18n="guideStart">准备好了，开始体验</span><span aria-hidden="true">↗</span></button><p class="guide-note" data-i18n="guidePrivacy">摄像头仅在体验时开启，画面不保存。手势用于模拟拍照意图。</p><p class="processing-setup" data-i18n="processingSetup">首次使用？先运行项目里的 Start-WebExperience.ps1，再点击连接。本机程序未启动时，连接页将无法打开。</p><a class="inline-link processing-browser-link" href="../#home" data-i18n="browserEdition">使用浏览器版 ↗</a></div>
+      </div>
+    </main>
+    <main id="live" data-view="live" hidden>
+      <h1 class="sr-only" tabindex="-1" data-i18n="liveView">实时画面</h1>
+      <section class="mirror-stage" data-status="idle" data-i18n-aria="liveView" aria-label="实时画面">
+        <img class="live-feed" alt="实时画面" hidden>
+        <div class="live-overlay"><a class="live-exit" href="#home"><span aria-hidden="true">×</span><span data-i18n="leaveLive">结束体验</span></a><span class="live-status"><i></i><span id="stage-status" role="status"></span></span><div class="live-tools"><a href="#guide" data-i18n="showGuide">操作提示</a><a href="#history" data-i18n="historyNav">防护记录</a></div></div>
+        <div class="live-fallback"><span class="live-loading" aria-hidden="true"></span><h2 id="live-fallback-title"></h2><p class="live-message" role="status" aria-live="polite"></p><button class="primary-button" id="session-button" hidden><span data-i18n="resumeLive">重新开始</span><span aria-hidden="true">↗</span></button><button class="quiet-button" id="reconnect" hidden data-i18n="retry">重新连接</button></div>
+        <aside class="live-telemetry" data-i18n-aria="sensorPanel" aria-label="距离与风险" data-sensor="unavailable"><div class="telemetry-heading"><i aria-hidden="true"></i><span data-i18n="sensorPanel">距离与风险</span></div><dl><div><dt data-i18n="distanceLabel">距离</dt><dd><span id="live-distance">—</span><small id="live-distance-unit" hidden>cm</small></dd></div><div><dt data-i18n="sensorRisk">Risk · 距离风险</dt><dd><span id="live-risk">—</span><small id="live-risk-unit" hidden>%</small></dd></div></dl><div class="sensor-risk-meter" role="meter" aria-label="距离风险" aria-valuemin="0" aria-valuemax="100" data-i18n-aria="sensorRisk"><span></span></div><p id="live-sensor-status" role="status"></p><p id="live-sensor-range"></p></aside>
+        <p class="live-caption" data-i18n="liveMinimalNote">模拟捕获体验 · 仅在本机处理</p>
+      </section>
+    </main>
+    <main id="history" class="experience-page" data-view="history" hidden>
+      <div class="page-heading"><div><span class="eyebrow" data-i18n="historyEyebrow">交互档案</span><h1 tabindex="-1" data-i18n="historyTitle">每一次回应，皆有迹可循。</h1></div><p data-i18n="historyIntro">回看模拟拍照事件与对应的口罩响应。</p></div>
+      <section class="archive-overview" data-i18n-aria="recordSummary" aria-label="记录概览"><div><strong id="record-total">0</strong><span data-i18n="eventsLabel">模拟事件</span></div><div><strong id="response-total">0</strong><span data-i18n="responsesLabel">口罩响应</span></div><p data-i18n="archivePrivacy">只留下一次回应的轨迹。<br>不保存你的面部画面。</p><button class="quiet-button" id="sample-toggle" aria-pressed="false" data-i18n="showSample">预览示例记录 ↗</button></section>
+      <div class="sample-banner" role="status" hidden><span data-i18n="sampleNotice">正在查看示例数据，不是你的实际防护记录。</span></div>
+      <form class="archive-filters"><div class="date-range"><label><span data-i18n="fromDate">开始日期</span><input id="date-from" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" maxlength="10" autocomplete="off"></label><span aria-hidden="true">—</span><label><span data-i18n="toDate">结束日期</span><input id="date-to" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" maxlength="10" autocomplete="off"></label></div><label class="shape-filter"><span data-i18n="shapeLabel">口罩形状</span><select id="history-shape"><option value="" data-i18n="allShapes">全部形状</option></select></label><button type="reset" class="quiet-button" data-i18n="clearFilters">重置筛选</button><button type="button" class="quiet-button" id="export-records" disabled data-i18n="export">导出记录 ↓</button></form>
+      <div class="archive-meta"><span id="result-count" role="status">0 条记录</span><span data-i18n="timezone">时间为 UTC+08:00</span></div>
+      <p class="archive-error" role="status" hidden></p>
+      <div class="archive-table"><div class="archive-columns" aria-hidden="true"><span data-i18n="eventTime">事件时间</span><span data-i18n="maskLabel">口罩</span><span data-i18n="responseLabel">响应</span><span data-i18n="distanceLabel">距离</span><span data-i18n="riskLabel">模拟风险</span><span></span></div><div id="record-list"></div></div>
+      <div class="archive-empty" hidden><span class="empty-mark" aria-hidden="true">⌜<i></i>⌟</span><h2 data-i18n="noRecords">还没有留下记录。</h2><p data-i18n="noRecordsBody">完成一次手势触发后，回应会保存在这里。</p><a class="inline-link" href="#guide"><span data-i18n="goLive">进入实时体验</span><span aria-hidden="true">↗</span></a></div>
+      <div class="archive-no-results" hidden><p data-i18n="noMatches">这个时间范围内没有记录。</p><button class="quiet-button" id="reset-search" data-i18n="clearFilters">重置筛选</button></div>
+      <p class="archive-footnote" data-i18n="archiveNote">记录反映交互原型的响应，不作为真实隐私防护的证明。</p>
+    </main>
+    <footer class="footer"><span data-i18n="footer">数字身份 / 人的表达</span><button class="project-button footer-project" data-i18n="project">项目介绍</button><span class="footer-status"><i></i><span data-i18n="footerStatus">交互试验 — 2026</span></span></footer>
+  </div>
+  <dialog class="project-dialog" aria-labelledby="project-title"><button class="dialog-close" data-i18n-aria="closeProject" aria-label="关闭项目介绍">×</button><span class="eyebrow" data-i18n="brand">404 FACE NOT FOUND</span><h2 id="project-title" data-i18n="projectTitle">为隐私留一点空间</h2><p data-i18n="projectBody">以手势、距离和数字口罩，探索面部隐私的表达方式。</p><p class="dialog-note" data-i18n="projectNote">一个以网页为载体的 HCI 交互试验。拍照手势象征外部捕获，数字口罩以形变作出回应。</p><a href="https://xhslink.cn/o/8Cs5llAr4Yk" target="_blank" rel="noreferrer"><span data-i18n="reference">视觉参考</span><span aria-hidden="true">↗</span></a></dialog>
+  <dialog class="record-dialog" aria-labelledby="record-title"><button class="dialog-close" data-i18n-aria="closeRecord" aria-label="关闭记录详情">×</button><span class="eyebrow" id="record-source" data-i18n="eventDetail">事件详情</span><h2 id="record-title"></h2><div class="record-detail-grid"><div class="record-art"><canvas id="record-mask" width="560" height="400" aria-hidden="true"></canvas><p data-i18n="configAtEvent">触发时的口罩配置</p></div><dl id="record-details"></dl></div><p class="record-note" data-i18n="recordNote">此处展示口罩配置与响应数据，不是现场照片或录像。</p><button class="primary-button" id="reuse-mask"><span data-i18n="reuseMask">使用这个口罩</span><span aria-hidden="true">↗</span></button></dialog>
+  <div class="toast" role="status" hidden></div>
+</body>
+</html>

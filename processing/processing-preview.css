@@ -1,0 +1,9 @@
+/* Edition details reuse the browser site's colour and type tokens. */
+.wordmark { flex-direction:column; align-items:flex-start; gap:2px; }
+.edition-marker { color:var(--rose); font:10px/1.4 var(--mono); letter-spacing:.06em; }
+.processing-setup { color:var(--muted); font-size:12px; line-height:1.8; margin:18px 0 10px; max-width:48ch; }
+.processing-browser-link { display:inline-flex; min-height:44px; align-items:center; }
+.guide-page .guide-hold { font-family:var(--mono); font-size:11px; letter-spacing:.06em; }
+@media (max-width:600px) {
+  .edition-marker { font-size:9px; letter-spacing:.02em; }
+}
