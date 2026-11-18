@@ -3,6 +3,10 @@
 .edition-marker { color:var(--rose); font:10px/1.4 var(--mono); letter-spacing:.06em; }
 .processing-setup { color:var(--muted); font-size:12px; line-height:1.8; margin:18px 0 10px; max-width:48ch; }
 .processing-browser-link { display:inline-flex; min-height:44px; align-items:center; }
+.processing-download { display:inline-flex; align-items:center; gap:14px; margin:10px 0 22px; min-height:48px; padding:12px 18px; background:var(--ink); color:var(--paper); border-radius:3px; }
+.processing-help { display:inline-flex; min-height:44px; align-items:center; margin-left:18px; color:var(--muted); font-size:12px; }
+.processing-hardware { font-size:12px; color:var(--muted); line-height:1.8; max-width:48ch; }
+.guide-page #guide-start { background:none; color:var(--ink); border:1px solid var(--line); }
 .guide-page .guide-hold { font-family:var(--mono); font-size:11px; letter-spacing:.06em; }
 @media (max-width:600px) {
   .edition-marker { font-size:9px; letter-spacing:.02em; }

@@ -63,7 +63,7 @@
   }
   $('#session-button').addEventListener('click',startSession);
   $('#reconnect').addEventListener('click',()=>{ messageKey='readyNote'; if(!wants) startSession(); else poll(); });
-  $('#guide-start').addEventListener('click',()=>{ if(processingHandoff) { location.assign(window.MaskInstallation.url(UI.selected,UI.language)); return; } if(publicPreview) { location.hash='history'; return; } liveEntry=true; location.hash='live'; });
+  $('#guide-start').addEventListener('click',()=>{ if(processingHandoff) { const url=window.MaskInstallation.url(UI.selected,UI.language); if(window.MaskManualProcessingHandoff) window.open(url,'_blank','noopener'); else location.assign(url); return; } if(publicPreview) { location.hash='history'; return; } liveEntry=true; location.hash='live'; });
   const pageTitle=()=>t({home:'homeTitlePage',collection:'title',guide:'guideTitlePage',live:'liveTitlePage',history:'historyTitlePage'}[page]||'homeTitlePage');
   function showPage() {
     let hash=location.hash.slice(1);

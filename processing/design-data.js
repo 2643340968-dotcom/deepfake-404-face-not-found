@@ -75,12 +75,12 @@
   Object.assign(messages.zh, {
     guideStepHold:'保持约一秒。口罩出现后可松开手势；双手全部离开画面后，口罩消失。',trackingOccluded:'短时遮挡，保持定位',
     wholeHand:'请让整只手进入画面',rightAngle:'食指与拇指组成直角',sensorPanel:'距离与风险',sensorRisk:'Risk · 距离风险',sensorOffline:'未连接现场装置',sensorNoReading:'传感器无有效读数',sensorStandby:'距离实时更新 · 等待手势触发',sensorResponding:'距离实时更新 · 口罩正在响应',sensorRange:'{near} cm → 100% · {far} cm → 0%',sensorSource:'Processing + Arduino · 真实传感器数据',
-    guidePrivacy:'摄像头由本机 Processing 开启，画面不保存或上传。请连接 Arduino 与距离传感器；Risk 在 2—50 cm 内随靠近而升高。',liveMinimalNote:'模拟捕获体验 · PROCESSING + ARDUINO · 仅在本机处理'
+    guidePrivacy:'摄像头由本机 Processing 开启，画面不保存或上传。Arduino 为可选设备；连接距离传感器后，Risk 在 2—50 cm 内随靠近而升高。未连接时距离与 Risk 显示未知。',liveMinimalNote:'模拟捕获体验 · PROCESSING + ARDUINO · 仅在本机处理'
   });
   Object.assign(messages.en, {
     guideStepHold:'Hold for about a second. Relax the gesture after the mask appears; it disappears when both hands leave the frame.',trackingOccluded:'Holding position through brief occlusion',
     wholeHand:'Keep your whole hand in view',rightAngle:'Make a right angle with index and thumb',sensorPanel:'DISTANCE & RISK',sensorRisk:'Risk · proximity',sensorOffline:'Installation not connected',sensorNoReading:'No valid sensor reading',sensorStandby:'Distance updates live · waiting for your gesture',sensorResponding:'Distance updates live · mask responding',sensorRange:'{near} cm → 100% · {far} cm → 0%',sensorSource:'Processing + Arduino · real sensor data',
-    guidePrivacy:'Processing uses the camera on this computer. Frames are never saved or uploaded. Connect Arduino and the distance sensor; Risk rises as you move closer within 2–50 cm.',liveMinimalNote:'SIMULATED CAPTURE · PROCESSING + ARDUINO · ON THIS DEVICE'
+    guidePrivacy:'Processing uses the camera on this computer. Frames are never saved or uploaded. Arduino is optional; with a distance sensor, Risk rises as you move closer within 2–50 cm. Without it, distance and Risk stay unknown.',liveMinimalNote:'SIMULATED CAPTURE · PROCESSING + ARDUINO · ON THIS DEVICE'
   });
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   function hsvToHex({ h, s, v }) {
